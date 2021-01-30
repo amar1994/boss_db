@@ -35,7 +35,9 @@ wait_until_connected(Worker) ->
     wait_until_connected(Worker, ?CONNECTION_TIMEOUT_SEED).
 
 wait_until_connected(Worker, Timeout) ->
-    case gen_server:call(Worker, {get_connection_state}, ?GENSERVER_TIMEOUT) of
+    BossDBOptions = application:get_env(boss_db, boss_db_options, []),
+    ConnectionTimeout = proplists:get_value(connection_call_timeout, BossDBOptions, ?GENSERVER_TIMEOUT),
+    case gen_server:call(Worker, {get_connection_state}, ConnectionTimeout) of
         connected ->
             {ok, connected};
         _ ->
